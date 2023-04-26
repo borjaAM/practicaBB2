@@ -1,6 +1,7 @@
 package com.bbsw.bitboxer2.practica.model;
 
 import com.bbsw.bitboxer2.practica.enums.ItemStateEnum;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,9 +9,7 @@ import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -32,7 +31,7 @@ public class Item {
     private double price;
 
     @Column(name = "state", nullable = false)
-    private ItemStateEnum state;
+    private ItemStateEnum itemState;
 
     @Column(name = "creationDate", nullable = false, updatable = false)
     @CreatedDate
@@ -43,7 +42,9 @@ public class Item {
     @JsonManagedReference
     private User creator;
 
-    //private List<PriceReduction> priceReductions;
+    @OneToMany(mappedBy = "item", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonBackReference
+    private Set<PriceReduction> priceReductions;
 
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
@@ -54,15 +55,15 @@ public class Item {
     )
     private Set<Supplier> suppliers;
 
-    public Item(Long itemCode, String description, double price, ItemStateEnum state, LocalDate creationDate,
-            User creator) {
+    public Item(Long itemCode, String description, double price, ItemStateEnum itemState, LocalDate creationDate,
+                User creator) {
         this.itemCode = itemCode;
         this.description = description;
         this.price = price;
-        this.state = state;
+        this.itemState = itemState;
         this.creationDate = creationDate;
         this.creator = creator;
-        //this.priceReductions = new ArrayList<>();
+        this.priceReductions = new HashSet<>();
         this.suppliers = new HashSet<>();
     }
 
