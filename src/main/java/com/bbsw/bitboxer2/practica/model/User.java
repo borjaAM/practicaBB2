@@ -21,14 +21,15 @@ public class User {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "username", nullable = false)
+    @Column(name = "username", nullable = false, unique = true)
     private String username;
 
     @JsonIgnore
     @Column(name = "password", nullable = false)
     private String password;
 
-    private UserRoleEnum userRoleEnum;
+    @Column(name = "userrole", nullable = false)
+    private UserRoleEnum userRole;
 
     @OneToMany(mappedBy = "creator", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonBackReference
@@ -36,7 +37,7 @@ public class User {
 
     @Override
     public String toString() {
-        return String.format("User {id=%s, username=%s, role=%s}", id, username, userRoleEnum);
+        return String.format("User {id=%s, username=%s, role=%s}", id, username, userRole);
     }
 
 }
