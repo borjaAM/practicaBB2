@@ -13,7 +13,7 @@ public class PriceReduction {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "price_reduction_id_seq")
-    @SequenceGenerator(name = "price_reduction_id_seq", sequenceName = "price_reduction_id_seq", allocationSize = 1, schema = "erp")
+    @SequenceGenerator(name = "price_reduction_id_seq", sequenceName = "price_reduction_id_seq", allocationSize = 1)
     @Column(name = "id")
     private Long id;
 

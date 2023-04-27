@@ -20,7 +20,7 @@ public class Item {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "item_id_seq")
-    @SequenceGenerator(name = "item_id_seq", sequenceName = "item_id_seq", allocationSize = 1, schema = "erp")
+    @SequenceGenerator(name = "item_id_seq", sequenceName = "item_id_seq", allocationSize = 1)
     @Column(name = "itemcode")
     private Long itemCode;
 
@@ -38,7 +38,7 @@ public class Item {
     private LocalDate creationDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "usuario_id")
     @JsonManagedReference
     private User creator;
 
@@ -50,8 +50,7 @@ public class Item {
     @JoinTable(
         name = "item_supplier",
         joinColumns = @JoinColumn(name = "supplier_id"),
-        inverseJoinColumns = @JoinColumn(name = "item_id"),
-        schema = "erp"
+        inverseJoinColumns = @JoinColumn(name = "item_id")
     )
     private Set<Supplier> suppliers;
 

@@ -10,14 +10,14 @@ import javax.persistence.*;
 import java.util.List;
 
 @Entity
-@Table(name = "user")
+@Table(name = "usuario")
 @Getter
 @Setter
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_id_seq")
-    @SequenceGenerator(name = "user_id_seq", sequenceName = "user_id_seq", allocationSize = 1, schema = "erp")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "usuario_id_seq")
+    @SequenceGenerator(name = "usuario_id_seq", sequenceName = "usuario_id_seq", allocationSize = 1)
     @Column(name = "id")
     private Long id;
 

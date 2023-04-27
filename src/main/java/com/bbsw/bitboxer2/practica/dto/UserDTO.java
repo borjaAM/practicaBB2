@@ -1,11 +1,9 @@
 package com.bbsw.bitboxer2.practica.dto;
 
 import com.bbsw.bitboxer2.practica.enums.UserRoleEnum;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
+@Data
 public class UserDTO {
 
     private Long id;
