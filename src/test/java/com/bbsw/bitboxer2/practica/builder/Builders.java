@@ -29,6 +29,7 @@ public class Builders {
 
     public static Item firstItem() {
         return ItemBuilder.anItem()
+            .withId(1L)
             .withItemCode(1L)
             .withDescription("Item 1")
             .withPrice(10.0)
@@ -41,6 +42,7 @@ public class Builders {
 
     public static Item secondItem() {
         return ItemBuilder.anItem()
+            .withId(2L)
             .withItemCode(2L)
             .withDescription("Item 2")
             .withPrice(100.0)
@@ -53,6 +55,7 @@ public class Builders {
 
     public static ItemDTO firstItemDTO() {
         return ItemDTOBuilder.anItemDTO()
+            .withId(1L)
             .withItemCode(1L)
             .withDescription("Item 1")
             .withPrice(10.0)
@@ -65,6 +68,7 @@ public class Builders {
 
     public static ItemDTO secondItemDTO() {
         return ItemDTOBuilder.anItemDTO()
+            .withId(2L)
             .withItemCode(2L)
             .withDescription("Item 2")
             .withPrice(100.0)

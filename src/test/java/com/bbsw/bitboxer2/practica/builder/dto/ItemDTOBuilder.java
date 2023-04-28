@@ -11,6 +11,7 @@ import java.util.Set;
 
 public class ItemDTOBuilder {
 
+    private Long id;
     private Long itemCode;
     private String description;
     private double price;
@@ -26,6 +27,11 @@ public class ItemDTOBuilder {
 
     public static ItemDTOBuilder anItemDTO() {
         return new ItemDTOBuilder();
+    }
+
+    public ItemDTOBuilder withId(Long id) {
+        this.id = id;
+        return this;
     }
 
     public ItemDTOBuilder withItemCode(Long itemCode) {
@@ -70,6 +76,7 @@ public class ItemDTOBuilder {
 
     public ItemDTO build() {
         ItemDTO itemDTO = new ItemDTO();
+        itemDTO.setId(this.id);
         itemDTO.setItemCode(this.itemCode);
         itemDTO.setDescription(this.description);
         itemDTO.setPrice(this.price);

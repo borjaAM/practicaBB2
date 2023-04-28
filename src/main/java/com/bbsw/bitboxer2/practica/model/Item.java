@@ -22,13 +22,15 @@ import java.util.stream.Collectors;
 @Setter
 @JsonIdentityInfo(
     generator = ObjectIdGenerators.PropertyGenerator.class,
-    property = "itemCode", scope = Item.class)
+    property = "id", scope = Item.class)
 public class Item implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "item_id_seq")
     @SequenceGenerator(name = "item_id_seq", sequenceName = "item_id_seq", allocationSize = 1)
-    @Column(name = "itemcode")
+    private Long id;
+
+    @Column(name = "itemcode", nullable = false, unique = true)
     private Long itemCode;
 
     @Column(name = "description", nullable = false)
@@ -46,12 +48,13 @@ public class Item implements Serializable {
     @JsonSerialize(using = LocalDateSerializer.class)
     private LocalDate creationDate;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+//    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "usuario_id")
     private User creator;
 
     @OneToMany(mappedBy = "item", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<PriceReduction> priceReductions;
+    private Set<PriceReduction> priceReductions = new HashSet<>();
 
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
@@ -59,19 +62,7 @@ public class Item implements Serializable {
         joinColumns = @JoinColumn(name = "supplier_id"),
         inverseJoinColumns = @JoinColumn(name = "item_id")
     )
-    private Set<Supplier> suppliers;
-
-    public Item(Long itemCode, String description, double price, ItemStateEnum itemState, LocalDate creationDate,
-                User creator) {
-        this.itemCode = itemCode;
-        this.description = description;
-        this.price = price;
-        this.itemState = itemState;
-        this.creationDate = creationDate;
-        this.creator = creator;
-        this.priceReductions = new HashSet<>();
-        this.suppliers = new HashSet<>();
-    }
+    private Set<Supplier> suppliers = new HashSet<>();
 
     @Override
     public String toString() {

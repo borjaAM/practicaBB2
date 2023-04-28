@@ -11,6 +11,7 @@ import java.util.Set;
 
 public class ItemBuilder {
 
+    private Long id;
     private Long itemCode;
     private String description;
     private double price;
@@ -26,6 +27,11 @@ public class ItemBuilder {
 
     public static ItemBuilder anItem() {
         return new ItemBuilder();
+    }
+
+    public ItemBuilder withId(Long id) {
+        this.id = id;
+        return this;
     }
 
     public ItemBuilder withItemCode(Long itemCode) {
@@ -70,6 +76,7 @@ public class ItemBuilder {
 
     public Item build() {
         Item item = new Item();
+        item.setId(this.id);
         item.setItemCode(this.itemCode);
         item.setDescription(this.description);
         item.setPrice(this.price);

@@ -10,28 +10,28 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/users")
 public class UserRestController {
 
     @Autowired
     private UserService userService;
 
-    @GetMapping("/users")
+    @GetMapping
     public List<UserDTO> getUsers() {
         return userService.findAll();
     }
 
-    @GetMapping("/users/{id}")
+    @GetMapping("/{id}")
     public UserDTO getUserById(@PathVariable Long id) {
         return userService.findById(id);
     }
 
-    @PostMapping("/users")
+    @PostMapping
     public Long createUser(@Validated @RequestBody UserDTO userDTO) {
         return userService.createUser(userDTO);
     }
 
-    @DeleteMapping(value = "/users/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
         return ResponseEntity.ok().body("User deleted");

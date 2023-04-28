@@ -19,9 +19,10 @@ import java.util.stream.Collectors;
 @Setter
 @JsonIdentityInfo(
     generator = ObjectIdGenerators.PropertyGenerator.class,
-    property = "itemCode", scope = ItemDTO.class)
+    property = "id", scope = ItemDTO.class)
 public class ItemDTO implements Serializable {
 
+    private Long id;
     private Long itemCode;
     private String description;
     private double price;
@@ -31,6 +32,13 @@ public class ItemDTO implements Serializable {
     private UserDTO creator;
     private Set<PriceReductionDTO> priceReductions = new HashSet<>();
     private Set<SupplierDTO> suppliers = new HashSet<>();
+
+    public void addPriceReduction(PriceReductionDTO priceReductionDTO) {
+//        if (priceReductions.contains(priceReductionDTO)) {
+//            return;
+//        }
+        priceReductions.add(priceReductionDTO);
+    }
 
     @Override
     public String toString() {
