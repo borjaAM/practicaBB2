@@ -1,22 +1,29 @@
 package com.bbsw.bitboxer2.practica.model;
 
 import com.bbsw.bitboxer2.practica.enums.ItemStateEnum;
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
+import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name="item")
 @NoArgsConstructor
-@Data
-public class Item {
+@Getter
+@Setter
+@JsonIdentityInfo(
+    generator = ObjectIdGenerators.PropertyGenerator.class,
+    property = "itemCode", scope = Item.class)
+public class Item implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "item_id_seq")
@@ -35,15 +42,15 @@ public class Item {
 
     @Column(name = "creationDate", nullable = false, updatable = false)
     @CreatedDate
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    @JsonSerialize(using = LocalDateSerializer.class)
     private LocalDate creationDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id")
-    @JsonManagedReference
     private User creator;
 
     @OneToMany(mappedBy = "item", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonBackReference
     private Set<PriceReduction> priceReductions;
 
     @ManyToMany(cascade = CascadeType.ALL)
@@ -66,4 +73,27 @@ public class Item {
         this.suppliers = new HashSet<>();
     }
 
+    @Override
+    public String toString() {
+        List<String> priceReductionIds = priceReductions.stream()
+            .map(PriceReduction::getId)
+            .map(String::valueOf)
+            .sorted()
+            .collect(Collectors.toList());
+        List<String> supplierIds = suppliers.stream()
+            .map(Supplier::getId)
+            .map(String::valueOf)
+            .sorted()
+            .collect(Collectors.toList());
+        return "Item{" +
+                "itemCode=" + itemCode +
+                ", description='" + description + '\'' +
+                ", price=" + price +
+                ", itemState=" + itemState +
+                ", creationDate=" + creationDate +
+                ", creator=" + creator +
+                ", priceReductions=" + priceReductionIds +
+                ", suppliers=" + supplierIds +
+                '}';
+    }
 }
