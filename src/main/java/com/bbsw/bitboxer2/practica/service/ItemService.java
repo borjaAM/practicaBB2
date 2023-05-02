@@ -1,6 +1,8 @@
 package com.bbsw.bitboxer2.practica.service;
 
 import com.bbsw.bitboxer2.practica.dto.ItemDTO;
+import com.bbsw.bitboxer2.practica.dto.PriceReductionDTO;
+import com.bbsw.bitboxer2.practica.dto.SupplierDTO;
 import com.bbsw.bitboxer2.practica.dto.converters.ItemDTOConverter;
 import com.bbsw.bitboxer2.practica.enums.ItemStateEnum;
 import com.bbsw.bitboxer2.practica.model.Item;
@@ -17,6 +19,7 @@ import java.util.stream.Collectors;
 public class ItemService {
 
     private static final Logger logger = LoggerFactory.getLogger(ItemService.class);
+
     private final ItemDTOConverter itemDTOConverter = new ItemDTOConverter();
 
     @Autowired
@@ -77,14 +80,41 @@ public class ItemService {
             return null;
         }
         Item updatedItem = itemDTOConverter.convertFromDTO(itemDTO);
-        item.setDescription(updatedItem.getDescription());
+        if (updatedItem.getDescription() != null) {
+            item.setDescription(updatedItem.getDescription());
+        }
         item.setPrice(updatedItem.getPrice());
         item.setItemState(updatedItem.getItemState());
-        item.setCreationDate(updatedItem.getCreationDate());
-        item.setCreator(updatedItem.getCreator());
-        item.setPriceReductions(updatedItem.getPriceReductions());
-        item.setSuppliers(updatedItem.getSuppliers());
         return itemDTOConverter.convertToDTO(itemRepository.save(item));
+    }
+
+    public ItemDTO addPriceReduction(Long itemCode, PriceReductionDTO priceReductionDTO) {
+        ItemDTO itemDTO = findByItemCode(itemCode);
+        if (itemDTO == null) {
+            return null;
+        }
+        priceReductionDTO.setItem(itemDTO);
+        if (!itemDTO.addPriceReduction(priceReductionDTO)) {
+            logger.info("There is an active price reduction associated to item {}", itemCode);
+            return null;
+        }
+        Item itemUpdated = itemRepository.save(itemDTOConverter.convertFromDTO(itemDTO));
+        logger.info("New price reduction {} added to item: {}", priceReductionDTO, itemUpdated);
+        return itemDTOConverter.convertToDTO(itemUpdated);
+    }
+
+    public ItemDTO associateNewSupplier(Long itemCode, SupplierDTO supplierDTO) {
+        ItemDTO itemDTO = findByItemCode(itemCode);
+        if (itemDTO == null) {
+            return null;
+        }
+        if (!itemDTO.addSupplier(supplierDTO)) {
+            logger.info("Supplier ({}) is already associated to the item ({})", supplierDTO.getId(), itemCode);
+            return null;
+        }
+        Item itemUpdated = itemRepository.save(itemDTOConverter.convertFromDTO(itemDTO));
+        logger.info("Supplier associated to item: {}", itemUpdated);
+        return itemDTOConverter.convertToDTO(itemUpdated);
     }
 
     public void deleteItem(Long id) {

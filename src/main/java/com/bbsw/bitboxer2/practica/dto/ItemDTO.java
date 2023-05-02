@@ -33,11 +33,25 @@ public class ItemDTO implements Serializable {
     private Set<PriceReductionDTO> priceReductions = new HashSet<>();
     private Set<SupplierDTO> suppliers = new HashSet<>();
 
-    public void addPriceReduction(PriceReductionDTO priceReductionDTO) {
-//        if (priceReductions.contains(priceReductionDTO)) {
-//            return;
-//        }
-        priceReductions.add(priceReductionDTO);
+    public boolean addPriceReduction(PriceReductionDTO priceReductionDTO) {
+        boolean activePriceReduction = priceReductions.stream()
+            .anyMatch(priceReduction ->
+                priceReductionDTO.getStartDate().isBefore(priceReduction.getEndDate()) &&
+                priceReductionDTO.getEndDate().isAfter(priceReduction.getStartDate())
+            );
+        if (!activePriceReduction) {
+            return priceReductions.add(priceReductionDTO);
+        }
+        return false;
+    }
+
+    public boolean addSupplier(SupplierDTO supplierDTO) {
+        boolean foundSupplier = suppliers.stream()
+            .anyMatch(supplier -> supplier.getId().equals(supplierDTO.getId()));
+        if (!foundSupplier) {
+            return suppliers.add(supplierDTO);
+        }
+        return false;
     }
 
     @Override

@@ -1,10 +1,14 @@
 package com.bbsw.bitboxer2.practica.model;
 
 import com.bbsw.bitboxer2.practica.enums.ItemStateEnum;
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
@@ -30,7 +34,7 @@ public class Item implements Serializable {
     @SequenceGenerator(name = "item_id_seq", sequenceName = "item_id_seq", allocationSize = 1)
     private Long id;
 
-    @Column(name = "itemcode", nullable = false, unique = true)
+    @Column(name = "itemcode", nullable = false, updatable = false, unique = true)
     private Long itemCode;
 
     @Column(name = "description", nullable = false)
@@ -50,7 +54,7 @@ public class Item implements Serializable {
 
 //    @ManyToOne(fetch = FetchType.LAZY)
     @ManyToOne
-    @JoinColumn(name = "usuario_id")
+    @JoinColumn(name = "usuario_id", nullable = false, updatable = false)
     private User creator;
 
     @OneToMany(mappedBy = "item", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)

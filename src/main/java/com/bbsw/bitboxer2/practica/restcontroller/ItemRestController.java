@@ -2,6 +2,7 @@ package com.bbsw.bitboxer2.practica.restcontroller;
 
 import com.bbsw.bitboxer2.practica.dto.ItemDTO;
 import com.bbsw.bitboxer2.practica.dto.PriceReductionDTO;
+import com.bbsw.bitboxer2.practica.dto.SupplierDTO;
 import com.bbsw.bitboxer2.practica.enums.ItemStateEnum;
 import com.bbsw.bitboxer2.practica.service.ItemService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
+
+import static org.hibernate.internal.util.StringHelper.isBlank;
 
 @RestController
 @RequestMapping("/api/items")
@@ -44,7 +47,7 @@ public class ItemRestController {
         if (itemDTO.getItemCode() == null) {
             return ResponseEntity.badRequest().body("The item code can't be empty");
         }
-        if (itemDTO.getDescription() == null) {
+        if (isBlank(itemDTO.getDescription())) {
             return ResponseEntity.badRequest().body("The item description can't be empty");
         }
         Long itemCreatedId = itemService.createItem(itemDTO);
@@ -56,30 +59,54 @@ public class ItemRestController {
     }
 
     @PostMapping("/{itemCode}/priceReductions")
-    public ResponseEntity<String> createPriceReduction(@PathVariable Long itemCode, @Validated @RequestBody PriceReductionDTO priceReductionDTO) {
+    public ResponseEntity<String> createPriceReduction(
+        @PathVariable Long itemCode, @Validated @RequestBody PriceReductionDTO priceReductionDTO
+    ) {
         ItemDTO itemDTO = itemService.findByItemCode(itemCode);
-        itemDTO.addPriceReduction(priceReductionDTO);
+        if (itemDTO == null) {
+            return ResponseEntity.notFound().build();
+        }
+        priceReductionDTO.setItem(itemDTO);
+        if (itemService.addPriceReduction(itemCode, priceReductionDTO) == null) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("There is an active price reduction associated to this item");
+        }
         ItemDTO itemDTOUpdated = itemService.updateItem(itemDTO);
         return ResponseEntity.ok(itemDTOUpdated.toString());
     }
 
+    @PostMapping("/{itemCode}/suppliers")
+    public ResponseEntity<String> associateSupplierToItem(
+        @PathVariable Long itemCode, @Validated @RequestBody SupplierDTO supplierDTO
+    ) {
+        ItemDTO itemDTO = itemService.findByItemCode(itemCode);
+        if (itemDTO == null) {
+            return ResponseEntity.notFound().build();
+        }
+        if (itemService.associateNewSupplier(itemCode, supplierDTO) == null) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Supplier is already associated to this item");
+        }
+        return ResponseEntity.ok(String.format("Supplier associated to item (%s)", itemCode));
+    }
+
     @PutMapping("/{itemCode}")
-    public ResponseEntity<String> updateItem(@PathVariable Long itemCode, @Validated @RequestBody ItemDTO itemDTO) {
+    public ResponseEntity<String> updateItem(@Validated @RequestBody ItemDTO itemDTO) {
         if (itemDTO.getItemCode() == null) {
             return ResponseEntity.badRequest().body("The item code can't be empty");
         }
-        if (itemDTO.getDescription() == null) {
+        if (isBlank(itemDTO.getDescription())) {
             return ResponseEntity.badRequest().body("The item description can't be empty");
         }
         ItemDTO itemUpdated = itemService.updateItem(itemDTO);
         if (itemUpdated == null) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok("Item updated");
+        return ResponseEntity.ok("Item updated: " + itemUpdated);
     }
 
     @DeleteMapping
-    public ResponseEntity<String> deleteUser(@PathVariable Long itemCode) {
+    public ResponseEntity<String> deleteItem(@PathVariable Long itemCode) {
         itemService.deleteItem(itemCode);
         return ResponseEntity.ok().body("Item deleted");
     }
