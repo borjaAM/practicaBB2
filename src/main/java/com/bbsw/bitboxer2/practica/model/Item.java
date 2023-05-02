@@ -46,7 +46,7 @@ public class Item implements Serializable {
     @Column(name = "state", nullable = false)
     private ItemStateEnum itemState;
 
-    @Column(name = "creationDate", nullable = false, updatable = false)
+    @Column(name = "creationDate", nullable = false)
     @CreatedDate
     @JsonFormat(pattern = "yyyy-MM-dd")
     @JsonSerialize(using = LocalDateSerializer.class)
@@ -54,7 +54,7 @@ public class Item implements Serializable {
 
 //    @ManyToOne(fetch = FetchType.LAZY)
     @ManyToOne
-    @JoinColumn(name = "usuario_id", nullable = false, updatable = false)
+    @JoinColumn(name = "usuario_id", nullable = false)
     private User creator;
 
     @OneToMany(mappedBy = "item", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
@@ -67,6 +67,13 @@ public class Item implements Serializable {
         inverseJoinColumns = @JoinColumn(name = "item_id")
     )
     private Set<Supplier> suppliers = new HashSet<>();
+
+    @Column(name = "deactivationReason")
+    private String deactivationReason;
+
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "deactivationUser_id", referencedColumnName = "id")
+    private User deactivationUser;
 
     @Override
     public String toString() {
@@ -87,6 +94,8 @@ public class Item implements Serializable {
                 ", itemState=" + itemState +
                 ", creationDate=" + creationDate +
                 ", creator=" + creator +
+                ", deactivationReason=" + deactivationReason +
+                ", deactivationUser=" + deactivationUser +
                 ", priceReductions=" + priceReductionIds +
                 ", suppliers=" + supplierIds +
                 '}';

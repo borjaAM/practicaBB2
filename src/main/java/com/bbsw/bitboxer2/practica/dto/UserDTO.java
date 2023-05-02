@@ -22,6 +22,7 @@ public class UserDTO implements Serializable {
     private String password;
     private UserRoleEnum userRole;
     private List<ItemDTO> items;
+    private List<ItemDTO> itemsDeactivated;
 
     @Override
     public String toString() {
@@ -30,11 +31,17 @@ public class UserDTO implements Serializable {
             .map(String::valueOf)
             .sorted()
             .collect(Collectors.toList());
+        List<String> itemDeactivatedCodes = itemsDeactivated.stream()
+                .map(ItemDTO::getItemCode)
+                .map(String::valueOf)
+                .sorted()
+                .collect(Collectors.toList());
         return "UserDTO{" +
                 "id=" + id +
                 ", username='" + username + '\'' +
                 ", userRole=" + userRole +
                 ", items=" + itemCodes +
+                ", itemsDeactivated=" + itemDeactivatedCodes +
                 '}';
     }
 }

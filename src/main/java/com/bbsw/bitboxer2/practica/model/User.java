@@ -39,6 +39,9 @@ public class User implements Serializable {
     @OneToMany(mappedBy = "creator", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Item> items;
 
+    @OneToMany(mappedBy = "deactivationUser", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Item> itemsDeactivated;
+
     @Override
     public String toString() {
         return String.format("User {id=%s, username=%s, role=%s}", id, username, userRole);

@@ -32,6 +32,8 @@ public class ItemDTO implements Serializable {
     private UserDTO creator;
     private Set<PriceReductionDTO> priceReductions = new HashSet<>();
     private Set<SupplierDTO> suppliers = new HashSet<>();
+    private String deactivationReason;
+    private UserDTO deactivationUser;
 
     public boolean addPriceReduction(PriceReductionDTO priceReductionDTO) {
         boolean activePriceReduction = priceReductions.stream()
@@ -73,6 +75,8 @@ public class ItemDTO implements Serializable {
             ", itemState=" + itemState +
             ", creationDate=" + creationDate +
             ", creator=" + creator +
+            ", deactivationReason=" + deactivationReason +
+            ", deactivationUser=" + deactivationUser +
             ", priceReductions=" + priceReductionIds +
             ", suppliers=" + supplierIds +
             '}';

@@ -105,6 +105,19 @@ public class ItemRestController {
         return ResponseEntity.ok("Item updated: " + itemUpdated);
     }
 
+    @PutMapping("/{itemCode}/deactivation")
+    public ResponseEntity<String> deactivateItem(@PathVariable Long itemCode, @Validated @RequestBody ItemDTO itemDTO) {
+        if (itemDTO.getItemCode() == null) {
+            return ResponseEntity.badRequest().body("The item code can't be empty");
+        }
+        itemDTO.setId(itemCode);
+        if (itemService.deactivateItem(itemDTO) == 0) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body("Deactivation reason is empty or user not exists");
+        }
+        return ResponseEntity.ok("Item has been successfully deactivated");
+    }
+
     @DeleteMapping
     public ResponseEntity<String> deleteItem(@PathVariable Long itemCode) {
         itemService.deleteItem(itemCode);

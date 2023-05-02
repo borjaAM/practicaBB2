@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.hibernate.internal.util.StringHelper.isBlank;
+
 @Service
 public class ItemService {
 
@@ -80,17 +82,48 @@ public class ItemService {
             return null;
         }
         Item updatedItem = itemDTOConverter.convertFromDTO(itemDTO);
-        if (updatedItem.getDescription() != null) {
+        if (isBlank(updatedItem.getDescription())) {
             item.setDescription(updatedItem.getDescription());
         }
         item.setPrice(updatedItem.getPrice());
         item.setItemState(updatedItem.getItemState());
+        item.setCreationDate(updatedItem.getCreationDate());
+        item.setCreator(updatedItem.getCreator());
         return itemDTOConverter.convertToDTO(itemRepository.save(item));
+    }
+
+    public int deactivateItem(ItemDTO itemDTO) {
+        Item item = itemRepository.findById(itemDTO.getId()).orElse(null);
+        if (item == null) {
+            logger.info("Can't find item with id: {}", itemDTO.getItemCode());
+            return 0;
+        }
+        if (ItemStateEnum.DISCONTINUED.equals(item.getItemState())) {
+            logger.info("Item ({}) is already deactivated", itemDTO.getItemCode());
+            return 0;
+        }
+        if (isBlank(itemDTO.getDeactivationReason())) {
+            logger.info("Item deactivation reason is empty");
+            return 0;
+        }
+        Item deactivatedItem = itemDTOConverter.convertFromDTO(itemDTO);
+        int updatedRows = itemRepository.updateItemState(
+            deactivatedItem.getDeactivationReason(), deactivatedItem.getDeactivationUser(),
+            itemDTO.getItemCode());
+        if (updatedRows == 0) {
+            logger.info("Can't deactivate item: {}", itemDTO.getItemCode());
+            return 0;
+        }
+        return updatedRows;
     }
 
     public ItemDTO addPriceReduction(Long itemCode, PriceReductionDTO priceReductionDTO) {
         ItemDTO itemDTO = findByItemCode(itemCode);
         if (itemDTO == null) {
+            return null;
+        }
+        if (!ItemStateEnum.ACTIVE.equals(itemDTO.getItemState())) {
+            logger.info("Can't add price reduction to item ({}) because is not active", itemDTO.getItemCode());
             return null;
         }
         priceReductionDTO.setItem(itemDTO);
@@ -106,6 +139,10 @@ public class ItemService {
     public ItemDTO associateNewSupplier(Long itemCode, SupplierDTO supplierDTO) {
         ItemDTO itemDTO = findByItemCode(itemCode);
         if (itemDTO == null) {
+            return null;
+        }
+        if (!ItemStateEnum.ACTIVE.equals(itemDTO.getItemState())) {
+            logger.info("Can't add supplier to item ({}) because is not active", itemDTO.getItemCode());
             return null;
         }
         if (!itemDTO.addSupplier(supplierDTO)) {
