@@ -53,6 +53,19 @@ public class Builders {
             .build();
     }
 
+    public static Item thirdItem() {
+        return ItemBuilder.anItem()
+            .withId(3L)
+            .withItemCode(3L)
+            .withDescription("Item 3")
+            .withPrice(70.0)
+            .withItemState(ItemStateEnum.ACTIVE)
+            .withCreationDate(LocalDate.of(2022, 6, 15))
+            .withPriceReductions(new HashSet<>())
+            .withSuppliers(new HashSet<>())
+            .build();
+    }
+
     public static ItemDTO firstItemDTO() {
         return ItemDTOBuilder.anItemDTO()
             .withId(1L)
@@ -74,6 +87,19 @@ public class Builders {
             .withPrice(100.0)
             .withItemState(ItemStateEnum.DISCONTINUED)
             .withCreationDate(LocalDate.of(2021, 1, 1))
+            .withPriceReductions(new HashSet<>())
+            .withSuppliers(new HashSet<>())
+            .build();
+    }
+
+    public static ItemDTO thirdItemDTO() {
+        return ItemDTOBuilder.anItemDTO()
+            .withId(3L)
+            .withItemCode(3L)
+            .withDescription("Item 3")
+            .withPrice(70.0)
+            .withItemState(ItemStateEnum.ACTIVE)
+            .withCreationDate(LocalDate.of(2022, 6, 15))
             .withPriceReductions(new HashSet<>())
             .withSuppliers(new HashSet<>())
             .build();
@@ -199,4 +225,14 @@ public class Builders {
             .withEndDate(LocalDate.of(2023, 1, 1))
             .build();
     }
+
+    public static PriceReductionDTO thirdPriceReductionDTO() {
+        return PriceReductionDTOBuilder.aPriceReductionDTO()
+            .withId(3L)
+            .withReducedPrice(35)
+            .withStartDate(LocalDate.of(2023, 1, 1))
+            .withEndDate(LocalDate.of(2023, 12, 31))
+            .build();
+    }
+
 }

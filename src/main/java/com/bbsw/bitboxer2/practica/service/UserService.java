@@ -20,6 +20,10 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
     private final UserDTOConverter userDTOConverter = new UserDTOConverter();
 
     public List<UserDTO> findAll() {

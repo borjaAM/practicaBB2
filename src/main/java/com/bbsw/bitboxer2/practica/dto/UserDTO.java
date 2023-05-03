@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,11 +27,17 @@ public class UserDTO implements Serializable {
 
     @Override
     public String toString() {
+        if (items == null) {
+            this.items = new ArrayList<>();
+        }
         List<String> itemCodes = items.stream()
             .map(ItemDTO::getItemCode)
             .map(String::valueOf)
             .sorted()
             .collect(Collectors.toList());
+        if (itemsDeactivated == null) {
+            this.itemsDeactivated = new ArrayList<>();
+        }
         List<String> itemDeactivatedCodes = itemsDeactivated.stream()
                 .map(ItemDTO::getItemCode)
                 .map(String::valueOf)

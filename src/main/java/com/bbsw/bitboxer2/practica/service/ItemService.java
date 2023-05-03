@@ -27,6 +27,10 @@ public class ItemService {
     @Autowired
     private ItemRepository itemRepository;
 
+    public ItemService(ItemRepository itemRepository) {
+        this.itemRepository = itemRepository;
+    }
+
     public List<ItemDTO> findAll() {
         List<Item> items = itemRepository.findAll();
         return items.stream()
