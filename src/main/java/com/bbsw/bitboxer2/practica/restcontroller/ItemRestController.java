@@ -33,7 +33,7 @@ public class ItemRestController {
 
     @GetMapping("/{itemCode}")
     public ResponseEntity<ItemDTO> getItemByItemCode(@PathVariable Long itemCode) {
-        ItemDTO itemDTO = itemService.findById(itemCode);
+        ItemDTO itemDTO = itemService.findByItemCode(itemCode);
         if (itemDTO == null) {
             return ResponseEntity.notFound().build();
         }
@@ -55,7 +55,7 @@ public class ItemRestController {
             return ResponseEntity.badRequest().body("An item with that item code already exists");
         }
         return ResponseEntity.status(HttpStatus.CREATED)
-            .body(String.format("Item created with id: %s", itemCreatedId));
+            .body(String.format("%s", itemCreatedId));
     }
 
     @PostMapping("/{itemCode}/priceReductions")
@@ -67,12 +67,12 @@ public class ItemRestController {
             return ResponseEntity.notFound().build();
         }
         priceReductionDTO.setItem(itemDTO);
-        if (itemService.addPriceReduction(itemCode, priceReductionDTO) == null) {
+        ItemDTO itemUpdated = itemService.addPriceReduction(itemCode, priceReductionDTO);
+        if (itemUpdated == null) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body("There is an active price reduction associated to this item");
         }
-        ItemDTO itemDTOUpdated = itemService.updateItem(itemDTO);
-        return ResponseEntity.ok(itemDTOUpdated.toString());
+        return ResponseEntity.ok(itemUpdated.toString());
     }
 
     @PostMapping("/{itemCode}/suppliers")
@@ -90,13 +90,16 @@ public class ItemRestController {
         return ResponseEntity.ok(String.format("Supplier associated to item (%s)", itemCode));
     }
 
-    @PutMapping("/{itemCode}")
+    @PutMapping
     public ResponseEntity<String> updateItem(@Validated @RequestBody ItemDTO itemDTO) {
         if (itemDTO.getItemCode() == null) {
             return ResponseEntity.badRequest().body("The item code can't be empty");
         }
         if (isBlank(itemDTO.getDescription())) {
             return ResponseEntity.badRequest().body("The item description can't be empty");
+        }
+        if (!ItemStateEnum.ACTIVE.equals(itemDTO.getItemState())) {
+            return ResponseEntity.badRequest().body("Can't update item because is not active");
         }
         ItemDTO itemUpdated = itemService.updateItem(itemDTO);
         if (itemUpdated == null) {
@@ -105,22 +108,28 @@ public class ItemRestController {
         return ResponseEntity.ok("Item updated: " + itemUpdated);
     }
 
-    @PutMapping("/{itemCode}/deactivation")
-    public ResponseEntity<String> deactivateItem(@PathVariable Long itemCode, @Validated @RequestBody ItemDTO itemDTO) {
-        if (itemDTO.getItemCode() == null) {
-            return ResponseEntity.badRequest().body("The item code can't be empty");
+    @PutMapping("/deactivated")
+    public ResponseEntity<String> deactivateItem(@Validated @RequestBody ItemDTO itemDTO) {
+        ItemDTO itemDTOById = itemService.findById(itemDTO.getId());
+        if (itemDTOById == null) {
+            return ResponseEntity.notFound().build();
         }
-        itemDTO.setId(itemCode);
+        if (ItemStateEnum.DISCONTINUED.equals(itemDTOById.getItemState())) {
+            return ResponseEntity.badRequest().body("Item is already deactivated");
+        }
         if (itemService.deactivateItem(itemDTO) == 0) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body("Deactivation reason is empty or user not exists");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Item not deactivated");
         }
         return ResponseEntity.ok("Item has been successfully deactivated");
     }
 
-    @DeleteMapping
-    public ResponseEntity<String> deleteItem(@PathVariable Long itemCode) {
-        itemService.deleteItem(itemCode);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteItem(@PathVariable Long id) {
+        if (itemService.findById(id) == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        itemService.deleteItem(id);
         return ResponseEntity.ok().body("Item deleted");
     }
 

@@ -20,6 +20,8 @@ public class ItemDTOBuilder {
     private UserDTO creator;
     private Set<PriceReductionDTO> priceReductions;
     private Set<SupplierDTO> suppliers;
+    private String deactivationReason;
+    private UserDTO deactivationUser;
 
     private ItemDTOBuilder() {
         super();
@@ -74,6 +76,16 @@ public class ItemDTOBuilder {
         return this;
     }
 
+    public ItemDTOBuilder withDeactivationReason(String deactivationReason) {
+        this.deactivationReason = deactivationReason;
+        return this;
+    }
+
+    public ItemDTOBuilder withDeactivationUser(UserDTO deactivationUser) {
+        this.deactivationUser = deactivationUser;
+        return this;
+    }
+
     public ItemDTO build() {
         ItemDTO itemDTO = new ItemDTO();
         itemDTO.setId(this.id);
@@ -85,6 +97,8 @@ public class ItemDTOBuilder {
         itemDTO.setCreator(this.creator);
         itemDTO.setPriceReductions(this.priceReductions);
         itemDTO.setSuppliers(this.suppliers);
+        itemDTO.setDeactivationReason(this.deactivationReason);
+        itemDTO.setDeactivationUser(this.deactivationUser);
         return itemDTO;
     }
 

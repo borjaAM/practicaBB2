@@ -89,6 +89,7 @@ public class Builders {
             .withCreationDate(LocalDate.of(2021, 1, 1))
             .withPriceReductions(new HashSet<>())
             .withSuppliers(new HashSet<>())
+            .withDeactivationReason("No reason")
             .build();
     }
 
