@@ -2,7 +2,6 @@ package com.bbsw.bitboxer2.practica.model;
 
 import com.bbsw.bitboxer2.practica.enums.UserRoleEnum;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.Getter;
 import lombok.Setter;
@@ -29,7 +28,6 @@ public class User implements Serializable {
     @Column(name = "username", nullable = false, unique = true)
     private String username;
 
-    @JsonIgnore
     @Column(name = "password", nullable = false)
     private String password;
 

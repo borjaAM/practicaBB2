@@ -8,6 +8,7 @@ import com.bbsw.bitboxer2.practica.service.ItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -124,6 +125,7 @@ public class ItemRestController {
         return ResponseEntity.ok("Item has been successfully deactivated");
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteItem(@PathVariable Long id) {
         if (itemService.findById(id) == null) {

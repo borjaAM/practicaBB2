@@ -11,13 +11,13 @@ public class UserRoleConverter implements AttributeConverter<UserRoleEnum, Strin
 
     @Override
     public String convertToDatabaseColumn(UserRoleEnum userRoleEnum) {
-        return userRoleEnum == null ? null : userRoleEnum.getRole();
+        return userRoleEnum == null ? null : userRoleEnum.toString();
     }
 
     @Override
     public UserRoleEnum convertToEntityAttribute(String role) {
         return Stream.of(UserRoleEnum.values())
-            .filter(userRoleEnum -> role.equals(userRoleEnum.getRole()))
+            .filter(userRoleEnum -> role.equals(userRoleEnum.toString()))
             .findFirst()
             .orElseThrow(IllegalAccessError::new);
     }

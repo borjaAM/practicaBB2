@@ -1,5 +1,8 @@
 create schema erp;
 
+insert into userrole(id, role) values (1, 'ADMIN');
+insert into userrole(id, role) values (2, 'USER');
+
 insert into usuario (id, username, password, userrole)
 values (1, 'user 1', 'passwd1', 'U');
 
