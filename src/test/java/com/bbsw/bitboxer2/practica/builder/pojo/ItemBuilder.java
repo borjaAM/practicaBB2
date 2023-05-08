@@ -20,6 +20,8 @@ public class ItemBuilder {
     private User creator;
     private Set<PriceReduction> priceReductions;
     private Set<Supplier> suppliers;
+    private String deactivationReason;
+    private User deactivationUser;
 
     private ItemBuilder() {
         super();
@@ -74,6 +76,16 @@ public class ItemBuilder {
         return this;
     }
 
+    public ItemBuilder withDeactivationReason(String deactivationReason) {
+        this.deactivationReason = deactivationReason;
+        return this;
+    }
+
+    public ItemBuilder withDeactivationUser(User deactivationUser) {
+        this.deactivationUser = deactivationUser;
+        return this;
+    }
+
     public Item build() {
         Item item = new Item();
         item.setId(this.id);
@@ -85,6 +97,8 @@ public class ItemBuilder {
         item.setCreator(this.creator);
         item.setPriceReductions(this.priceReductions);
         item.setSuppliers(this.suppliers);
+        item.setDeactivationReason(this.deactivationReason);
+        item.setDeactivationUser(this.deactivationUser);
         return item;
     }
 

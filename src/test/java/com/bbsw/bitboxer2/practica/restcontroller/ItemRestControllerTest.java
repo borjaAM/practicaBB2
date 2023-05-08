@@ -6,28 +6,37 @@ import com.bbsw.bitboxer2.practica.dto.PriceReductionDTO;
 import com.bbsw.bitboxer2.practica.dto.SupplierDTO;
 import com.bbsw.bitboxer2.practica.dto.UserDTO;
 import com.bbsw.bitboxer2.practica.enums.ItemStateEnum;
+import com.bbsw.bitboxer2.practica.security.SecurityConstants;
 import com.bbsw.bitboxer2.practica.service.ItemService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import static com.bbsw.bitboxer2.practica.security.SecurityConstants.EXPIRATION_TIME;
+import static com.bbsw.bitboxer2.practica.security.SecurityConstants.SECRET;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(ItemRestController.class)
+@SpringBootTest()
+@AutoConfigureMockMvc
 class ItemRestControllerTest {
 
     @Autowired
@@ -38,6 +47,8 @@ class ItemRestControllerTest {
 
     @MockBean
     private ItemService itemService;
+
+    private String jwtToken;
 
     private ItemDTO itemDTO1;
     private ItemDTO itemDTO2;
@@ -60,6 +71,12 @@ class ItemRestControllerTest {
         itemDTO3.setCreator(Builders.firstUserDTO());
 
         itemsDTO = List.of(itemDTO1, itemDTO2, itemDTO3);
+
+        jwtToken = SecurityConstants.TOKEN_PREFIX + Jwts.builder().setSubject("test1")
+            .setIssuedAt(new Date())
+            .setExpiration(new Date(new Date().getTime() + EXPIRATION_TIME))
+            .signWith(SignatureAlgorithm.HS512, SECRET)
+            .compact();
     }
 
     @Test
@@ -67,6 +84,7 @@ class ItemRestControllerTest {
         when(itemService.findAll()).thenReturn(itemsDTO);
         mockMvc.perform(MockMvcRequestBuilders
             .get("/api/items")
+            .header(HttpHeaders.AUTHORIZATION, jwtToken)
             .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$", Matchers.hasSize(3)))
@@ -80,6 +98,7 @@ class ItemRestControllerTest {
         when(itemService.findByState(ItemStateEnum.ACTIVE)).thenReturn(List.of(itemDTO1, itemDTO3));
         mockMvc.perform(MockMvcRequestBuilders
             .get("/api/items?state=ACTIVE")
+            .header(HttpHeaders.AUTHORIZATION, jwtToken)
             .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$", Matchers.hasSize(2)))
@@ -100,6 +119,7 @@ class ItemRestControllerTest {
         when(itemService.findByItemCode(itemDTO1.getItemCode())).thenReturn(itemDTO1);
         mockMvc.perform(MockMvcRequestBuilders
             .get(String.format("/api/items/%s", itemDTO1.getItemCode()))
+            .header(HttpHeaders.AUTHORIZATION, jwtToken)
             .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.id", Matchers.is(Math.toIntExact(itemDTO1.getId()))))
@@ -120,6 +140,7 @@ class ItemRestControllerTest {
         when(itemService.findByItemCode(itemDTO1.getItemCode())).thenReturn(null);
         mockMvc.perform(MockMvcRequestBuilders
             .get(String.format("/api/items/%s", itemDTO1.getItemCode()))
+            .header(HttpHeaders.AUTHORIZATION, jwtToken)
             .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isNotFound());
     }
@@ -130,6 +151,7 @@ class ItemRestControllerTest {
         when(itemService.createItem(itemDTO1)).thenReturn(1L);
         MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders
             .post("/api/items")
+            .header(HttpHeaders.AUTHORIZATION, jwtToken)
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
             .content(this.mapper.writeValueAsString(itemDTO1));
@@ -142,6 +164,7 @@ class ItemRestControllerTest {
         when(itemService.createItem(itemDTO2)).thenReturn(2L);
         mockRequest = MockMvcRequestBuilders
             .post("/api/items")
+            .header(HttpHeaders.AUTHORIZATION, jwtToken)
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
             .content(this.mapper.writeValueAsString(itemDTO2));
@@ -157,6 +180,7 @@ class ItemRestControllerTest {
         itemDTO1.setItemCode(null);
         mockMvc.perform(MockMvcRequestBuilders
             .post("/api/items")
+            .header(HttpHeaders.AUTHORIZATION, jwtToken)
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
             .content(this.mapper.writeValueAsString(itemDTO1)))
@@ -169,6 +193,7 @@ class ItemRestControllerTest {
         itemDTO1.setDescription(null);
         mockMvc.perform(MockMvcRequestBuilders
             .post("/api/items")
+            .header(HttpHeaders.AUTHORIZATION, jwtToken)
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
             .content(this.mapper.writeValueAsString(itemDTO1)))
@@ -177,6 +202,7 @@ class ItemRestControllerTest {
         itemDTO1.setDescription("");
         mockMvc.perform(MockMvcRequestBuilders
             .post("/api/items")
+            .header(HttpHeaders.AUTHORIZATION, jwtToken)
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
             .content(this.mapper.writeValueAsString(itemDTO1)))
@@ -189,6 +215,7 @@ class ItemRestControllerTest {
         when(itemService.createItem(itemDTO3)).thenReturn(null);
         mockMvc.perform(MockMvcRequestBuilders
             .post("/api/items")
+            .header(HttpHeaders.AUTHORIZATION, jwtToken)
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
             .content(this.mapper.writeValueAsString(itemDTO3)))
@@ -203,6 +230,7 @@ class ItemRestControllerTest {
         priceReductionDTO.setId(null);
         mockMvc.perform(MockMvcRequestBuilders
             .post(String.format("/api/items/%s/priceReductions", itemDTO1.getItemCode()))
+            .header(HttpHeaders.AUTHORIZATION, jwtToken)
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
             .content(this.mapper.writeValueAsString(priceReductionDTO)))
@@ -221,6 +249,7 @@ class ItemRestControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders
             .post(String.format("/api/items/%s/priceReductions", itemDTO1.getItemCode()))
+            .header(HttpHeaders.AUTHORIZATION, jwtToken)
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
             .content(this.mapper.writeValueAsString(priceReductionDTO)))
@@ -242,6 +271,7 @@ class ItemRestControllerTest {
         itemDTO1.setSuppliers(Set.of(supplierDTO));
         mockMvc.perform(MockMvcRequestBuilders
             .post(String.format("/api/items/%s/suppliers", itemDTO1.getItemCode()))
+            .header(HttpHeaders.AUTHORIZATION, jwtToken)
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
             .content(this.mapper.writeValueAsString(supplierDTO)))
@@ -257,6 +287,7 @@ class ItemRestControllerTest {
         when(itemService.associateNewSupplier(itemDTO1.getItemCode(), supplierDTO)).thenReturn(itemDTO1);
         mockMvc.perform(MockMvcRequestBuilders
             .post(String.format("/api/items/%s/suppliers", itemDTO1.getItemCode()))
+            .header(HttpHeaders.AUTHORIZATION, jwtToken)
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
             .content(this.mapper.writeValueAsString(supplierDTO)))
@@ -277,6 +308,7 @@ class ItemRestControllerTest {
         when(itemService.updateItem(itemDTOUpdated)).thenReturn(itemDTO1);
         MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders
             .put("/api/items")
+            .header(HttpHeaders.AUTHORIZATION, jwtToken)
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
             .content(this.mapper.writeValueAsString(itemDTOUpdated));
@@ -305,13 +337,13 @@ class ItemRestControllerTest {
         itemDTOUpdated.setItemCode(null);
 
         MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders
-                .put("/api/items")
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .content(this.mapper.writeValueAsString(itemDTOUpdated));
+            .put("/api/items")
+            .header(HttpHeaders.AUTHORIZATION, jwtToken)
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .content(this.mapper.writeValueAsString(itemDTOUpdated));
 
-        mockMvc.perform(mockRequest)
-            .andExpect(status().isBadRequest());
+        mockMvc.perform(mockRequest).andExpect(status().isBadRequest());
     }
 
     @Test
@@ -321,6 +353,7 @@ class ItemRestControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders
             .put("/api/items")
+            .header(HttpHeaders.AUTHORIZATION, jwtToken)
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
             .content(this.mapper.writeValueAsString(itemDTOUpdated)))
@@ -330,6 +363,7 @@ class ItemRestControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders
             .put("/api/items")
+            .header(HttpHeaders.AUTHORIZATION, jwtToken)
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
             .content(this.mapper.writeValueAsString(itemDTOUpdated)))
@@ -343,6 +377,7 @@ class ItemRestControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders
             .put("/api/items")
+            .header(HttpHeaders.AUTHORIZATION, jwtToken)
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
             .content(this.mapper.writeValueAsString(itemDTOUpdated)))
@@ -362,6 +397,7 @@ class ItemRestControllerTest {
         when(itemService.deactivateItem(itemDeactivated)).thenReturn(1);
         MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders
             .put("/api/items/deactivated")
+            .header(HttpHeaders.AUTHORIZATION, jwtToken)
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
             .content(this.mapper.writeValueAsString(itemDeactivated));
@@ -378,6 +414,7 @@ class ItemRestControllerTest {
         when(itemService.findById(itemDTO2.getId())).thenReturn(itemDTO2);
         MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders
             .put("/api/items/deactivated")
+            .header(HttpHeaders.AUTHORIZATION, jwtToken)
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
             .content(this.mapper.writeValueAsString(itemDTO2));
@@ -390,6 +427,7 @@ class ItemRestControllerTest {
         when(itemService.findById(itemDTO2.getId())).thenReturn(null);
         MockHttpServletRequestBuilder mockRequest = MockMvcRequestBuilders
             .put("/api/items/deactivated")
+            .header(HttpHeaders.AUTHORIZATION, jwtToken)
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON)
             .content(this.mapper.writeValueAsString(itemDTO1));
@@ -402,6 +440,7 @@ class ItemRestControllerTest {
         when(itemService.findById(itemDTO1.getId())).thenReturn(itemDTO1);
         mockMvc.perform(MockMvcRequestBuilders
             .delete(String.format("/api/items/%s", itemDTO1.getId()))
+            .header(HttpHeaders.AUTHORIZATION, jwtToken)
             .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk());
     }
@@ -411,6 +450,7 @@ class ItemRestControllerTest {
         when(itemService.findById(50L)).thenReturn(null);
         mockMvc.perform(MockMvcRequestBuilders
             .delete(String.format("/api/items/%s", 50L))
+            .header(HttpHeaders.AUTHORIZATION, jwtToken)
             .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isBadRequest());
     }

@@ -49,7 +49,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     private String getToken(HttpServletRequest request) {
         String header = request.getHeader(HEADER_STRING);
         if (header != null && header.startsWith(TOKEN_PREFIX)) {
-            return header.replace("Bearer", "");
+            return header.replace(TOKEN_PREFIX, "");
         }
         return null;
     }

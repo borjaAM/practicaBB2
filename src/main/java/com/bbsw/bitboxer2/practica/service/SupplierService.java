@@ -2,7 +2,9 @@ package com.bbsw.bitboxer2.practica.service;
 
 import com.bbsw.bitboxer2.practica.dto.ItemDTO;
 import com.bbsw.bitboxer2.practica.dto.SupplierDTO;
+import com.bbsw.bitboxer2.practica.dto.converters.ItemDTOConverter;
 import com.bbsw.bitboxer2.practica.dto.converters.SupplierDTOConverter;
+import com.bbsw.bitboxer2.practica.model.Item;
 import com.bbsw.bitboxer2.practica.model.Supplier;
 import com.bbsw.bitboxer2.practica.repository.SupplierRepository;
 import org.slf4j.Logger;
@@ -58,20 +60,15 @@ public class SupplierService {
     }
 
     public Map<Long, ItemDTO> findCheapestItemPerSupplier() {
-//        List<Map<Long, Item>> cheapestItemPerSupplier = supplierRepository.findCheapestItemPerSupplier();
-//        Map<Long, ItemDTO> result = new HashMap<>();
-//        ItemDTOConverter itemDTOConverter = new ItemDTOConverter();
-//        cheapestItemPerSupplier.forEach(item ->
-//            result.putAll(item);
-//        );
-//        for (Map<Long, Item> map : cheapestItemPerSupplier) {
-//            for (Map.Entry<Long, Item> entry : map.entrySet()) {
-//                Item value = entry.getValue();
-//                ItemDTO itemDTO = itemDTOConverter.convertToDTO(value);
-//                result.put(entry.getKey(), itemDTO);
-//            }
-//        }
-//        return result;
-        return new HashMap<>();
+        List<Map<Long, Item>> cheapestItemPerSupplier = supplierRepository.findCheapestItemPerSupplier();
+        Map<Long, ItemDTO> result = new HashMap<>();
+        ItemDTOConverter itemDTOConverter = new ItemDTOConverter();
+        for (Map<Long, Item> map : cheapestItemPerSupplier) {
+            Long supplierId = (Long) map.values().toArray()[0];
+            ItemDTO itemDTO = itemDTOConverter.convertToDTO((Item) map.values().toArray()[1]);
+            result.put(supplierId, itemDTO);
+        }
+        return result;
     }
+
 }

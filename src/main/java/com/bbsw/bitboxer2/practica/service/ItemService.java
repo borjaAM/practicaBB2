@@ -86,7 +86,7 @@ public class ItemService {
             return null;
         }
         Item updatedItem = itemDTOConverter.convertFromDTO(itemDTO);
-        if (isBlank(updatedItem.getDescription())) {
+        if (!isBlank(updatedItem.getDescription())) {
             item.setDescription(updatedItem.getDescription());
         }
         item.setPrice(updatedItem.getPrice());

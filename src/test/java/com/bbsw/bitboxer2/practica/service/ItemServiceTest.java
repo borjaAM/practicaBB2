@@ -133,11 +133,13 @@ class ItemServiceTest {
         ItemDTO itemDTOUpdated = Builders.firstItemDTO();
         itemDTOUpdated.setDescription("Description updated");
         itemDTOUpdated.setCreator(Builders.secondUserDTO());
+        itemDTOUpdated.setSuppliers(Set.of(Builders.firstSupplierDTO()));
         Item updatedItem = Builders.firstItem();
         updatedItem.setDescription("Description updated");
         updatedItem.setCreator(Builders.secondUser());
-        this.itemService.updateItem(itemDTOUpdated);
-        verify(this.itemRepository).save(updatedItem);
+        updatedItem.setSuppliers(Set.of(Builders.firstSupplier()));
+        itemService.updateItem(itemDTOUpdated);
+        verify(itemRepository).save(updatedItem);
     }
 
     @Test

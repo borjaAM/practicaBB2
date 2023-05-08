@@ -4,10 +4,10 @@ insert into userrole(id, role) values (1, 'ADMIN');
 insert into userrole(id, role) values (2, 'USER');
 
 insert into usuario (id, username, password, userrole)
-values (1, 'user 1', 'passwd1', 'U');
+values (1, 'user 1', 'passwd1', 'USER');
 
 insert into usuario (id, username, password, userrole)
-values (2, 'user 2', 'passwd2', 'A');
+values (2, 'user 2', 'passwd2', 'ADMIN');
 
 insert into item (id, itemcode, description, price, state, creation_date, usuario_id)
 values (1, 1, 'Item 1', 15, 'A', '2023-04-28', 1);
